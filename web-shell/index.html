@@ -1,27 +1,51 @@
 <!doctype html>
 <html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Brushline Rally · Web</title>
 <style>
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:#172b2c;color:#f9f1df;font:16px system-ui}body{display:grid;place-items:center;overflow:hidden}canvas{width:100%;height:100%;object-fit:contain;outline:none}#panel{position:fixed;inset:0;display:grid;place-content:center;gap:20px;text-align:center;padding:24px;background:#172b2cf5}#panel[hidden]{display:none}h1{font-size:clamp(28px,5vw,60px);margin:0;font-style:italic}p{max-width:560px;line-height:1.7;margin:0;color:#c8d5cb}button,a{font:inherit;font-weight:700;color:#172b2c;background:#ebbb67;border:2px solid transparent;border-radius:4px;padding:14px 24px;cursor:pointer;text-decoration:none}button:focus-visible,a:focus-visible{outline:3px solid #fff;outline-offset:4px}button:disabled{opacity:.5;cursor:wait}#toolbar{position:fixed;top:10px;right:10px;display:flex;gap:8px;opacity:.35}#toolbar:hover,#toolbar:focus-within{opacity:1}#toolbar button,#toolbar a{padding:8px 12px;font-size:13px;background:#172b2c;color:#f9f1df;border-color:#f9f1df55}progress{width:100%;accent-color:#ebbb67;height:8px}#status{min-height:28px}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:#172b2c;color:#f9f1df;font:16px system-ui}body{overflow:hidden}canvas{width:100%;height:100%;object-fit:contain;outline:none}button,a{font:inherit;font-weight:700;color:#172b2c;background:#ebbb67;border:2px solid transparent;border-radius:3px;padding:14px 24px;cursor:pointer;text-decoration:none}button:focus-visible,a:focus-visible{outline:3px solid #fff;outline-offset:4px}button:disabled{opacity:.5;cursor:wait}[hidden]{display:none!important}#toolbar{position:fixed;top:10px;right:10px;display:flex;gap:8px;opacity:.35}#toolbar:hover,#toolbar:focus-within{opacity:1}#toolbar button,#toolbar a{padding:8px 12px;font-size:13px;background:#172b2c;color:#f9f1df;border-color:#f9f1df55}
+#panel{position:fixed;inset:0;z-index:2;display:grid;place-items:center;padding:32px;background:#172b2c;overflow:auto}.departure{width:min(100%,920px)}.edition{display:flex;justify-content:space-between;gap:20px;font:11px ui-monospace,monospace;letter-spacing:.18em;color:#b7c8bd;padding-bottom:18px;border-bottom:1px solid #78928355}.hero{display:grid;grid-template-columns:1fr .8fr;gap:60px;align-items:center;padding:36px 0 30px}.hero h1{font-style:italic;font-size:clamp(40px,6.2vw,78px);font-weight:950;line-height:.95;letter-spacing:-.04em;margin:0 0 22px}.hero h1 span{display:block;color:#ebbb67}.hero p{color:#c8d5cb;font-size:13px;line-height:1.8;margin:0;max-width:370px}.route-art{width:100%;height:auto;max-height:230px}.route-art .route-line{stroke-dasharray:9 9}.checkpoint{display:flex;justify-content:space-between;align-items:baseline;gap:20px;margin:20px 0 12px}#status{font-size:17px;font-weight:650;margin:0}#amount{font:36px ui-monospace,monospace;letter-spacing:-.06em;color:#ebbb67;white-space:nowrap}.track{position:relative;height:14px;background:#78928326;overflow:hidden;border:1px solid #78928366}.track:after{content:'';position:absolute;right:0;top:0;width:28px;height:100%;background:conic-gradient(#f9f1df 25%,#172b2c 0 50%,#f9f1df 0 75%,#172b2c 0) 0 0/12px 12px;opacity:.8;pointer-events:none}progress{display:block;appearance:none;width:100%;height:100%;border:0;background:transparent;color:#ebbb67}progress::-webkit-progress-bar{background:transparent}progress::-webkit-progress-value{background:#ebbb67;transition:width .12s}progress::-moz-progress-bar{background:#ebbb67}#panel[data-phase=launcher] .track:before,#panel[data-phase=engine] .track:before{content:'';position:absolute;inset:0 auto 0 0;width:28%;background:#ebbb67;animation:readiness 1.8s ease-in-out infinite}#detail{min-height:24px;font:12px/1.7 ui-monospace,system-ui;color:#b7c8bd;margin:12px 0 0}.steps{display:flex;list-style:none;padding:0;margin:27px 0;gap:28px;font-size:11px;letter-spacing:.1em;color:#8da59a}.steps li{display:flex;gap:8px;align-items:center}.steps b{font:11px ui-monospace,monospace;border:1px solid currentColor;padding:3px 5px}.steps .active{color:#ebbb67}.steps .done{color:#f9f1df}.actions{display:flex;gap:16px;align-items:center;min-height:52px}.back{background:transparent;border-color:#78928366;color:#d6dfd3;font-size:13px}.footnote{font-size:11px;color:#a4b9ad;line-height:1.7;margin:22px 0 0}#panel[data-phase=error] .track{opacity:.35}@keyframes readiness{from{transform:translateX(-100%)}to{transform:translateX(460%)}}@media(max-width:650px){#panel{padding:25px}.hero{grid-template-columns:1fr;gap:15px;padding:28px 0 15px}.route-art{display:none}.hero h1{font-size:55px}.steps{gap:15px;font-size:10px}.edition{font-size:9px}.checkpoint{margin-top:12px}#amount{font-size:30px}}@media(max-height:560px) and (min-width:651px){#panel{padding:20px 50px}.hero{padding:20px 0 0;gap:50px}.hero h1{font-size:45px}.route-art{max-height:120px}.steps{margin:16px 0}.footnote{margin-top:12px}}@media(prefers-reduced-motion:reduce){#panel .track:before{animation:none;width:100%;opacity:.25}progress::-webkit-progress-value{transition:none}}
 </style></head><body>
 <canvas id="canvas" tabindex="0" aria-label="Brushline Rally 游戏画面"></canvas>
 <div id="toolbar"><button id="fullscreen" aria-label="全屏">全屏</button><a href="/">返回首页</a></div>
-<section id="panel"><h1>BRUSHLINE RALLY</h1><p>山路、扬尘与下一道弯。<br>推荐使用电脑键盘或手柄；进度保存在当前浏览器。</p><progress id="progress" max="1" value="0"></progress><p id="status" role="status">首次启动需要下载游戏资源，请保持页面打开。</p><button id="start">进入赛道</button><a id="retry" href="" hidden>重新加载</a></section>
-<script src="$GODOT_URL"></script><script>
-const canvas=document.querySelector('#canvas'), panel=document.querySelector('#panel'), status=document.querySelector('#status'), start=document.querySelector('#start'), progress=document.querySelector('#progress');
+<section id="panel" data-phase="launcher" aria-label="赛前准备"><div class="departure">
+<div class="edition"><span>BRUSHLINE / WEB EDITION</span><span>PRE-STAGE</span></div>
+<div class="hero"><div><h1>BRUSHLINE<span>RALLY</span></h1><p>山路、扬尘与下一道弯。<br>准备就绪，即刻出发。</p></div>
+<svg class="route-art" viewBox="0 0 360 220" fill="none" aria-hidden="true"><path d="m10 175 70-115 58 75 50-110 70 105 35-45 57 90" fill="#496658"/><path d="m0 195 85-67 65 42 62-60 65 65 83-32v77H0Z" fill="#2e4c43"/><path d="M15 215c50-36 116-21 137-56s-63-52-30-81 120 17 146-18S293 23 325 10" stroke="#f9f1df" stroke-width="18"/><path class="route-line" d="M15 215c50-36 116-21 137-56s-63-52-30-81 120 17 146-18S293 23 325 10" stroke="#172b2c" stroke-width="2"/><path d="m310 29 5-20h27l-5 20Z" fill="#ebbb67"/><circle cx="112" cy="179" r="5" fill="#ebbb67"/></svg></div>
+<div class="checkpoint"><p id="status" role="status">载入启动器</p><output id="amount" aria-hidden="true">—</output></div>
+<div class="track"><progress id="progress" max="1" aria-label="游戏资源下载进度"></progress></div>
+<p id="detail">首次启动需要下载游戏资源，请保持页面打开。</p>
+<ol class="steps" aria-label="启动阶段"><li class="active" id="step-launcher"><b>01</b>启动器</li><li id="step-download"><b>02</b>游戏资源</li><li id="step-engine"><b>03</b>引擎准备</li></ol>
+<div class="actions"><a class="back" href="/">返回首页</a><button id="start" disabled>稍候</button><a id="retry" href="" hidden>重新加载</a></div>
+<p class="footnote">推荐电脑键盘或手柄 · 进度保存在当前浏览器</p><noscript>请启用 JavaScript 后重新加载。</noscript>
+</div></section>
+<script>
+const canvas=document.querySelector('#canvas'),panel=document.querySelector('#panel'),status=document.querySelector('#status'),start=document.querySelector('#start'),progress=document.querySelector('#progress'),amount=document.querySelector('#amount'),detail=document.querySelector('#detail'),retry=document.querySelector('#retry');
 const config=$GODOT_CONFIG;
+const expectedBytes=Object.values(config.fileSizes||{}).reduce((sum,size)=>sum+size,0);
+let engine,finished=false,lastBytes=0,lastActivity=Date.now(),watchdog;
+function phase(name){panel.dataset.phase=name;const names=['launcher','download','engine'],active=names.indexOf(name);names.forEach((n,i)=>{document.querySelector('#step-'+n).className=i<active?'done':i===active?'active':'';});}
 function resize(){const scale=Math.min(1,1280/innerWidth,720/innerHeight);canvas.width=Math.max(1,Math.round(innerWidth*scale));canvas.height=Math.max(1,Math.round(innerHeight*scale));}
-resize();addEventListener('resize',resize);
-config.canvas=canvas;config.canvasResizePolicy=0;
-config.onProgress=(current,total)=>{if(total>0){progress.value=current/total;status.textContent=`正在加载 ${Math.round(current/total*100)}%`;}else{progress.removeAttribute('value');status.textContent='正在准备赛道…';}};
-config.onExit=()=>{panel.hidden=false;start.hidden=true;progress.hidden=true;status.textContent='已结束驾驶，可以返回首页或重新加载。';document.querySelector('#retry').hidden=false;};
-function runtimeFailure(message){panel.hidden=false;start.hidden=true;progress.hidden=true;status.textContent='运行遇到问题，请重新加载；如果重复发生，请换用桌面版。';document.querySelector('#retry').hidden=false;console.error(message);}
-addEventListener('error',event=>runtimeFailure(event.message));
-addEventListener('unhandledrejection',event=>runtimeFailure(String(event.reason)));
+resize();addEventListener('resize',resize);config.canvas=canvas;config.canvasResizePolicy=0;
+function stopWatch(){clearInterval(watchdog);}
+function runtimeFailure(error){finished=true;stopWatch();phase('error');panel.hidden=false;start.hidden=true;progress.removeAttribute('value');status.textContent='暂时无法出发';amount.textContent='—';detail.textContent='请检查网络或浏览器硬件加速后重试。';retry.hidden=false;console.error(error);}
+config.onProgress=(current,total)=>{
+ if(finished)return;
+ const size=expectedBytes||total;
+ if(current!==lastBytes){lastActivity=Date.now();lastBytes=current;}
+ if(size>0){const ratio=Math.min(1,current/size);progress.value=ratio;amount.textContent=Math.floor(ratio*100)+'%';status.textContent='下载游戏资源';phase('download');detail.textContent=`已读取 ${(current/1048576).toFixed(1)} / ${(size/1048576).toFixed(1)} MiB · 解压后资源量`;
+ if(ratio>=1){phase('engine');progress.removeAttribute('value');amount.textContent='就绪中';status.textContent='准备引擎与赛道';detail.textContent='资源下载完成，正在初始化画面与浏览器存档。';lastActivity=Date.now();}
+ }else{progress.removeAttribute('value');amount.textContent='—';status.textContent='读取游戏资源';detail.textContent='正在接收资源，暂时无法确定总量。';}
+};
+config.onExit=()=>{finished=true;stopWatch();phase('exit');panel.hidden=false;start.hidden=true;progress.value=1;status.textContent='本次驾驶已结束';amount.textContent='—';detail.textContent='可以返回首页，或重新载入赛道。';retry.hidden=false;};
+addEventListener('error',event=>{if(event.target?.tagName==='SCRIPT'||event.error)runtimeFailure(event.error||'Launcher failed');},true);
+addEventListener('unhandledrejection',event=>runtimeFailure(event.reason));
 canvas.addEventListener('webglcontextlost',()=>runtimeFailure('WebGL context lost'));
-const engine=new Engine(config);
-start.addEventListener('click',async()=>{start.disabled=true;try{if(!Engine.isWebGLAvailable(2))throw Error('当前浏览器无法使用 WebGL 2，请开启硬件加速或更换浏览器。');await engine.startGame();panel.hidden=true;canvas.focus();}catch(error){status.textContent=`启动失败：${error.message||error}`;start.hidden=true;document.querySelector('#retry').hidden=false;console.error(error);}});
+start.addEventListener('click',async()=>{
+ if(start.disabled||!engine)return;start.disabled=true;start.hidden=true;phase('download');progress.value=0;status.textContent='连接资源服务器';amount.textContent='0%';lastActivity=Date.now();
+ try{if(!Engine.isWebGLAvailable(2))throw Error('WebGL 2 unavailable');await engine.startGame();if(finished)return;finished=true;stopWatch();requestAnimationFrame(()=>{panel.hidden=true;canvas.focus();});}catch(error){runtimeFailure(error);}
+});
+function launcherReady(){try{engine=new Engine(config);phase('ready');document.querySelector('#step-launcher').className='done';status.textContent='准备出发';detail.textContent='首次下载较大，之后可复用浏览器缓存。';progress.value=0;amount.textContent='—';start.disabled=false;start.textContent='进入赛道';}catch(error){runtimeFailure(error);}}
+watchdog=setInterval(()=>{if(finished)return;if(Date.now()-lastActivity>20000&&['launcher','download','engine'].includes(panel.dataset.phase)){detail.textContent=panel.dataset.phase==='engine'?'引擎仍在准备中，请稍候；也可以重新加载。':'连接较慢，仍在等待资源；可以继续等待或重新加载。';retry.hidden=false;}},2000);
 document.querySelector('#fullscreen').addEventListener('click',async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen();canvas.focus();}catch(error){console.warn(error);}});
-const visibility=()=>window.brushlineVisibility?.(document.hidden||!document.hasFocus());
-document.addEventListener('visibilitychange',visibility);addEventListener('blur',visibility);addEventListener('focus',visibility);
-canvas.addEventListener('contextmenu',event=>event.preventDefault());
-</script></body></html>
+const visibility=()=>window.brushlineVisibility?.(document.hidden||!document.hasFocus());document.addEventListener('visibilitychange',visibility);addEventListener('blur',visibility);addEventListener('focus',visibility);canvas.addEventListener('contextmenu',event=>event.preventDefault());
+</script><script id="godot-loader" src="$GODOT_URL" defer></script><script>document.querySelector('#godot-loader').addEventListener('load',launcherReady);</script>
+</body></html>

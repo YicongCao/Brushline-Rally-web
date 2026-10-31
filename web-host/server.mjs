@@ -1,5 +1,7 @@
 import express from 'express';
 import path from 'node:path';
+import { readFile } from 'node:fs/promises';
+import { renderShell } from './lib/shell.mjs';
 import { fileURLToPath } from 'node:url';
 import { containedFile, currentRelease, readRelease } from './lib/releases.mjs';
 
@@ -12,6 +14,7 @@ export function createApp(options = {}) {
   const site = path.resolve(options.site ?? process.env.SITE_ROOT ?? path.join(projectRoot, 'web-host/site'));
   const releases = path.resolve(options.releases ?? process.env.GAME_RELEASE_ROOT ?? path.join(projectRoot, 'builds/web'));
   const pointer = path.resolve(options.pointer ?? process.env.CURRENT_MANIFEST ?? path.join(projectRoot, 'builds/web-state/current.json'));
+  const shell = options.shell ?? process.env.GAME_SHELL;
   const app = express();
   app.disable('x-powered-by');
   app.use((req, res, next) => {
@@ -44,6 +47,13 @@ export function createApp(options = {}) {
       if (!parts.length) return res.set('Cache-Control', 'no-store').redirect(302, `/play/${id}/`);
       const relative = parts.join('/') || release.manifest.entry;
       if (!release.files.has(relative)) return res.status(404).set('Cache-Control', 'no-store').end();
+      // Optional hosting-shell updates keep immutable WASM/PCK and saved games intact.
+      if (shell && relative === release.manifest.entry && relative.endsWith('.html')) {
+        const exported = await readFile(await containedFile(release.directory, relative), 'utf8');
+        const template = await readFile(shell, 'utf8');
+        if (release.manifest.threads) res.set({ 'Cross-Origin-Opener-Policy': 'same-origin', 'Cross-Origin-Embedder-Policy': 'require-corp' });
+        return res.set('Cache-Control','no-cache').type('html').send(renderShell(template, exported));
+      }
       const available = ['br', 'gzip'].filter((encoding) => release.files.has(relative + (encoding === 'br' ? '.br' : '.gz')));
       if (req.headers.range && req.acceptsEncodings('identity')) available.length = 0;
       const encoding = req.acceptsEncodings(...available, 'identity');

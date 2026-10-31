@@ -4,6 +4,7 @@ WORKDIR /app
 COPY package.json package-lock.json ./
 RUN npm ci --omit=dev && npm cache clean --force
 COPY web-host ./web-host
+COPY web-shell ./web-shell
 COPY scripts/web/activate.mjs ./scripts/web/activate.mjs
 USER node
 EXPOSE 3000
