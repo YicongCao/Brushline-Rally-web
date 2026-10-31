@@ -1,7 +1,7 @@
 class_name RallyFonts
 extends RefCounted
 
-const TEXT: FontFile = preload("res://assets/fonts/NotoSansSC-Variable.ttf")
+const TEXT: FontFile = preload("res://assets/fonts/NotoSansSC-Variable.woff2")
 const MONO: FontFile = preload("res://assets/fonts/NotoSansMono-Variable.ttf")
 const DISPLAY: FontFile = preload("res://assets/fonts/ChakraPetch-Bold.ttf")
 static var _plate: FontVariation
