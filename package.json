@@ -1,0 +1,18 @@
+{
+  "name": "brushline-rally-web",
+  "version": "0.5.0-web.1",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=24 <27"
+  },
+  "scripts": {
+    "start": "node web-host/server.mjs",
+    "web:build": "node scripts/web/build.mjs",
+    "web:activate": "node scripts/web/activate.mjs",
+    "web:check": "node scripts/web/check.mjs"
+  },
+  "dependencies": {
+    "express": "5.3.0"
+  }
+}

@@ -82,8 +82,8 @@ func update(car: RallyVehicle, settings: RallyGameSettings, controls: RallyInput
 		for player: AudioStreamPlayer in engine_layers.values(): player.volume_db = -80
 	is_paused = paused
 	collision_cooldown = maxf(0,collision_cooldown-dt)
-	for player: AudioStreamPlayer in engine_layers.values(): player.stream_paused = paused
-	for player: AudioStreamPlayer in players.values(): player.stream_paused = paused
+	for player: AudioStreamPlayer in engine_layers.values(): RallyAudioDirector._set_paused(player,paused)
+	for player: AudioStreamPlayer in players.values(): RallyAudioDirector._set_paused(player,paused)
 	if paused:
 		for entry: Dictionary in particles: entry.emitter.emitting = false
 		stop_rumble()

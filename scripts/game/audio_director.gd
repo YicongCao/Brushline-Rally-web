@@ -91,10 +91,10 @@ func cue(kind: String) -> void:
 
 func _process(dt: float) -> void:
 	duck = maxf(0,duck-dt)
-	voice.stream_paused = get_tree().paused and driving and not voice_is_preview
+	_set_paused(voice,get_tree().paused and driving and not voice_is_preview)
 	if voice.playing and not voice.stream_paused: duck = maxf(duck,.12)
-	ambience.stream_paused = get_tree().paused and driving
-	music.stream_paused = get_tree().paused and driving and not playback
+	_set_paused(ambience,get_tree().paused and driving)
+	_set_paused(music,get_tree().paused and driving and not playback)
 	for pair: Array in [["Environment","environment_volume"],["Music","music_volume"]]:
 		var value: float = settings.values[pair[1]]*(0.55 if duck>0 else 1.0)
 		AudioServer.set_bus_volume_db(AudioServer.get_bus_index(pair[0]),linear_to_db(maxf(0.0001,value)))
@@ -138,3 +138,8 @@ func speak_note(code: String,preview: bool = false) -> void:
 	last_note = code
 	if DisplayServer.get_name()!="headless": voice.play()
 	duck = .5
+
+
+static func _set_paused(player: AudioStreamPlayer,value: bool) -> void:
+	# Web Sample playback can restart/copy buffers on redundant resume calls.
+	if player.stream_paused != value: player.stream_paused = value

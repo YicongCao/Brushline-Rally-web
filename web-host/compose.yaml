@@ -1,0 +1,16 @@
+services:
+  web:
+    build:
+      context: ..
+      dockerfile: web-host/Dockerfile
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3080:3000"
+    volumes:
+      - ../builds/web:/srv/releases:ro
+      - ../builds/web-state:/srv/state:ro
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]

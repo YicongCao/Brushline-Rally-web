@@ -1,0 +1,1 @@
+fetch('/readyz',{cache:'no-store'}).then(async response=>{await response.json();document.querySelector('#status').textContent=response.ok?'首次进入需要下载资源，请耐心等待。':'赛道资源正在准备；现在可浏览首页，稍后重试驾驶。';}).catch(()=>{document.querySelector('#status').textContent='暂时无法连接赛道，请稍后重试。';});

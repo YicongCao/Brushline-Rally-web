@@ -1,0 +1,8 @@
+*
+!package.json
+!package-lock.json
+!web-host/
+!web-host/**
+!scripts/
+!scripts/web/
+!scripts/web/activate.mjs

@@ -62,7 +62,7 @@ func sample(frame: Array,car: String,environment_id: String,shot: String,time: f
 	rotor.volume_linear=.28 if shot=="helicopter" else 0
 	river.volume_linear=.24 if shot=="bridge" else 0
 	music.volume_linear=.20*(1-smoothstep(72,75,time))
-	for player: AudioStreamPlayer in players: player.stream_paused=paused
+	for player: AudioStreamPlayer in players: RallyAudioDirector._set_paused(player,paused)
 
 func silence() -> void:
 	for player: AudioStreamPlayer in players: player.stream_paused=true

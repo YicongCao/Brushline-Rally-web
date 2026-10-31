@@ -68,6 +68,17 @@ func export_csv(vehicle: RallyVehicle) -> String:
 	var info := FileAccess.open(stem + ".json", FileAccess.WRITE)
 	if info == null: return ""
 	info.store_string(JSON.stringify(metadata, "\t"))
+	info.close()
+	if OS.has_feature("web"):
+		var archive := ZIPPacker.new()
+		if archive.open(stem+".zip") != OK: return ""
+		for extension: String in ["csv","json"]:
+			archive.start_file(stem.get_file()+"."+extension)
+			archive.write_file(FileAccess.get_file_as_bytes(stem+"."+extension))
+			archive.close_file()
+		archive.close()
+		JavaScriptBridge.download_buffer(FileAccess.get_file_as_bytes(stem+".zip"),stem.get_file()+".zip","application/zip")
+		return "浏览器下载："+stem.get_file()+".zip"
 	return ProjectSettings.globalize_path(stem + ".csv")
 
 

@@ -62,8 +62,11 @@ func _ready() -> void:
 	test_mode = "--test-defaults" in OS.get_cmdline_user_args()
 	if test_mode and profile.path=="user://player/profile.json": profile.path = "user://test-session/profile.json"
 	var migration := OK
-	if not test_mode and profile.path=="user://player/profile.json": migration=RallyBrandMigration.migrate()
+	if not test_mode and not OS.has_feature("web") and profile.path=="user://player/profile.json": migration=RallyBrandMigration.migrate()
 	profile.load_file()
+	if OS.has_feature("web"):
+		prefs.set_value("low_detail",true)
+		prefs.set_value("lens_flare",false)
 	garage_store.path=profile.path.get_base_dir()+"/garage.json"
 	garage_store.load_file()
 	if migration!=OK:
@@ -280,7 +283,7 @@ func show_home() -> void:
 	_menu_tile(secondary,"操作指南","","guide",Color("20252b"),show_guide,false)
 	_menu_tile(secondary,"成绩册","","records",Color("20252b"),show_records,false)
 	_menu_tile(secondary,"制作名单","","credits",Color("20252b"),show_credits,false)
-	_menu_tile(secondary,"退出","","exit",Color("20252b"),_quit_game,false)
+	_menu_tile(secondary,"返回网页" if OS.has_feature("web") else "退出","","exit",Color("20252b"),_quit_game,false)
 
 
 func show_guide() -> void:

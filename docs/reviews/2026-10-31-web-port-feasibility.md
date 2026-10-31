@@ -1,3 +1,5 @@
+> 本文保留桌面仓库调研时的历史结论。独立 Web 仓库已开始实现，当前可执行步骤及验收边界以 [部署手册](../deployment/WEB_HOSTING_HANDOFF.md) 和 [Web 验证记录](../validation/web/VALIDATION.md) 为准。
+
 # Brushline Rally 网页版与 Node.js 托管可行性
 
 调研日期：2026-10-31。项目基线：`3ab1c4ab1b70abed5bb739c844d2a0f337e520bf`，Godot 4.7.2。

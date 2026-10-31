@@ -1,4 +1,24 @@
-# Brushline Rally
+# Brushline Rally Web
+
+独立 Web 版仓库，源自 [Brushline Rally](https://github.com/YicongCao/Brushline-Rally) 的 `5d5c2c6`。保留完整历史，桌面仓库保持独立；下方历史版本链接仍指向桌面发行。
+
+## 浏览器版开发与部署
+
+已接入 Godot 4.7.2 Web 单线程导出、Compatibility 渲染、浏览器启动页及 Node.js / Express 托管。游戏在浏览器内执行，服务器只提供文件。当前为预发布验证版，不承诺全部设备的性能。
+
+```bash
+npm ci
+python3 scripts/web/install_templates.py
+npm run web:check
+npm run web:build
+npm run web:activate -- <上一步输出的build-id>
+PORT=3080 npm start
+```
+
+打开 `http://127.0.0.1:3080/`。构建要求干净提交；开发可附加 `-- --allow-dirty`。源码不包含被 Git 忽略的 `builds/`，未准备游戏包时首页可用而试玩返回 503。
+
+[运维部署、HTTPS 与回滚](docs/deployment/WEB_HOSTING_HANDOFF.md) · [Web 验证记录](docs/validation/web/VALIDATION.md)
+
 
 ![Brushline Rally 品牌插画](assets/brushline/banner.png)
 

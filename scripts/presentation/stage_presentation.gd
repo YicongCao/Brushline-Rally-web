@@ -60,7 +60,7 @@ func build(owner_scene: Node3D) -> void:
 	environment.background_mode = Environment.BG_SKY
 	var sky := Sky.new()
 	var material := ShaderMaterial.new()
-	material.shader = preload("res://assets/shaders/sample_sky.gdshader")
+	material.shader = preload("res://assets/shaders/web_sky.gdshader") if OS.has_feature("web") else preload("res://assets/shaders/sample_sky.gdshader")
 	material.set_shader_parameter("painted_banks",true)
 	material.set_shader_parameter("cloud_atlas",preload("res://assets/sky/comic/cloud-banks.png"))
 	material.set_shader_parameter("cloud_drift",0.0)
@@ -86,8 +86,8 @@ func build(owner_scene: Node3D) -> void:
 	scene.camera.fov = 62
 	previous_msaa = scene.get_viewport().msaa_3d
 	previous_screen_aa = scene.get_viewport().screen_space_aa
-	scene.get_viewport().msaa_3d = Viewport.MSAA_DISABLED
-	scene.get_viewport().screen_space_aa = Viewport.SCREEN_SPACE_AA_FXAA
+	scene.get_viewport().msaa_3d = (Viewport.MSAA_2X if OS.has_feature("web") else Viewport.MSAA_DISABLED)
+	scene.get_viewport().screen_space_aa = (Viewport.SCREEN_SPACE_AA_DISABLED if OS.has_feature("web") else Viewport.SCREEN_SPACE_AA_FXAA)
 
 
 func update(dt: float,drive_camera: bool = true) -> void:

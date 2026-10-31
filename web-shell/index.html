@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><title>Brushline Rally · Web</title>
+<style>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:#172b2c;color:#f9f1df;font:16px system-ui}body{display:grid;place-items:center;overflow:hidden}canvas{width:100%;height:100%;object-fit:contain;outline:none}#panel{position:fixed;inset:0;display:grid;place-content:center;gap:20px;text-align:center;padding:24px;background:#172b2cf5}#panel[hidden]{display:none}h1{font-size:clamp(28px,5vw,60px);margin:0;font-style:italic}p{max-width:560px;line-height:1.7;margin:0;color:#c8d5cb}button,a{font:inherit;font-weight:700;color:#172b2c;background:#ebbb67;border:2px solid transparent;border-radius:4px;padding:14px 24px;cursor:pointer;text-decoration:none}button:focus-visible,a:focus-visible{outline:3px solid #fff;outline-offset:4px}button:disabled{opacity:.5;cursor:wait}#toolbar{position:fixed;top:10px;right:10px;display:flex;gap:8px;opacity:.35}#toolbar:hover,#toolbar:focus-within{opacity:1}#toolbar button,#toolbar a{padding:8px 12px;font-size:13px;background:#172b2c;color:#f9f1df;border-color:#f9f1df55}progress{width:100%;accent-color:#ebbb67;height:8px}#status{min-height:28px}
+</style></head><body>
+<canvas id="canvas" tabindex="0" aria-label="Brushline Rally 游戏画面"></canvas>
+<div id="toolbar"><button id="fullscreen" aria-label="全屏">全屏</button><a href="/">返回首页</a></div>
+<section id="panel"><h1>BRUSHLINE RALLY</h1><p>山路、扬尘与下一道弯。<br>推荐使用电脑键盘或手柄；进度保存在当前浏览器。</p><progress id="progress" max="1" value="0"></progress><p id="status" role="status">首次启动需要下载游戏资源，请保持页面打开。</p><button id="start">进入赛道</button><a id="retry" href="" hidden>重新加载</a></section>
+<script src="$GODOT_URL"></script><script>
+const canvas=document.querySelector('#canvas'), panel=document.querySelector('#panel'), status=document.querySelector('#status'), start=document.querySelector('#start'), progress=document.querySelector('#progress');
+const config=$GODOT_CONFIG;
+function resize(){const scale=Math.min(1,1280/innerWidth,720/innerHeight);canvas.width=Math.max(1,Math.round(innerWidth*scale));canvas.height=Math.max(1,Math.round(innerHeight*scale));}
+resize();addEventListener('resize',resize);
+config.canvas=canvas;config.canvasResizePolicy=0;
+config.onProgress=(current,total)=>{if(total>0){progress.value=current/total;status.textContent=`正在加载 ${Math.round(current/total*100)}%`;}else{progress.removeAttribute('value');status.textContent='正在准备赛道…';}};
+config.onExit=()=>{panel.hidden=false;start.hidden=true;progress.hidden=true;status.textContent='已结束驾驶，可以返回首页或重新加载。';document.querySelector('#retry').hidden=false;};
+function runtimeFailure(message){panel.hidden=false;start.hidden=true;progress.hidden=true;status.textContent='运行遇到问题，请重新加载；如果重复发生，请换用桌面版。';document.querySelector('#retry').hidden=false;console.error(message);}
+addEventListener('error',event=>runtimeFailure(event.message));
+addEventListener('unhandledrejection',event=>runtimeFailure(String(event.reason)));
+canvas.addEventListener('webglcontextlost',()=>runtimeFailure('WebGL context lost'));
+const engine=new Engine(config);
+start.addEventListener('click',async()=>{start.disabled=true;try{if(!Engine.isWebGLAvailable(2))throw Error('当前浏览器无法使用 WebGL 2，请开启硬件加速或更换浏览器。');await engine.startGame();panel.hidden=true;canvas.focus();}catch(error){status.textContent=`启动失败：${error.message||error}`;start.hidden=true;document.querySelector('#retry').hidden=false;console.error(error);}});
+document.querySelector('#fullscreen').addEventListener('click',async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen();canvas.focus();}catch(error){console.warn(error);}});
+const visibility=()=>window.brushlineVisibility?.(document.hidden||!document.hasFocus());
+document.addEventListener('visibilitychange',visibility);addEventListener('blur',visibility);addEventListener('focus',visibility);
+canvas.addEventListener('contextmenu',event=>event.preventDefault());
+</script></body></html>
