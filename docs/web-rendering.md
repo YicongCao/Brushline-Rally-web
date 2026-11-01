@@ -9,10 +9,13 @@ The offscreen showcase/garage follows that budget instead of imposing a second
 3D framebuffer resolution.
 
 `web-shell/index.html` receives two-second wall-frame samples from WebPlatform.
-After startup warm-up, three consecutive windows below 45 fps lower the pixel
-budget to 900p, then 720p. Ten healthy windows above 58 fps allow recovery, with
-cooldown between changes. Paused, hidden and loading states are excluded.
-This is a fallback for sustained load, not a promise of 60 fps on every device.
+Resolution stays at native pixels up to the cap even under sustained load.
+The tested CPU/draw-call-bound scene did not gain meaningful fps from lowering
+resolution; avoid blurring small windows to hide that bottleneck. Shared Web
+settings now apply low-detail scenery and disable lens flare in actual races,
+showcases, settings reset and menus, rather than only the menu's settings object.
+Explicit saved user preferences still take precedence. This is not a promise
+of 60 fps on every device.
 Use `?render_stats=1` on a versioned `/play/<build>/` URL to show actual render
 size, fps and p95. Its bounded history stays in the canvas DOM; nothing is sent
 to a server, and no graphics setting is persisted in the player's save.
@@ -40,7 +43,7 @@ reflection cubemap; the visible sky remains full-resolution.
 
 ## Reproduce
 
-- `node scripts/web/check-shell.mjs`: Retina/1080p limits, sustained-load recovery,
+- `node scripts/web/check-shell.mjs`: Retina/1080p limits, clarity under sustained load,
   background exclusion, loader progress and HTTP template integration.
 - `npm run web:check`: host/range/isolation/rollback tests.
 - `godot --path . --rendering-method gl_compatibility --script res://scripts/dev/web_render_probe.gd`

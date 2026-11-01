@@ -23,18 +23,17 @@ const expectedBytes=Object.values(config.fileSizes||{}).reduce((sum,size)=>sum+s
 let engine,finished=false,lastBytes=0,lastActivity=Date.now(),watchdog;
 function phase(name){panel.dataset.phase=name;const names=['launcher','download','engine'],active=names.indexOf(name);names.forEach((n,i)=>{document.querySelector('#step-'+n).className=i<active?'done':i===active?'active':'';});}
 // Physical pixels, including Retina; never spend more than a 1080p frame.
-let renderTier=0, slowWindows=0, fastWindows=0, settleWindows=4;
-const renderScales=[1,5/6,2/3];
 function resize(){
- const scale=Math.min(window.devicePixelRatio||1,1920/innerWidth,1080/innerHeight)*renderScales[renderTier];
+ const scale=Math.min(window.devicePixelRatio||1,1920/innerWidth,1080/innerHeight);
  const width=Math.max(1,Math.round(innerWidth*scale)),height=Math.max(1,Math.round(innerHeight*scale));
  if(canvas.width!==width||canvas.height!==height){canvas.width=width;canvas.height=height;}
 }
 // Called by Godot only during live driving or a playing showcase. Compilation,
-// loading, background tabs and pause menus must never lower rendering quality.
+// loading, background tabs and pause menus are excluded from diagnostics.
+// Keep native pixels: CPU-bound scenes must not trade clarity for no fps gain.
 window.brushlineFrameSample=(fps,p95,width,height,cpuMs=0,drawCalls=0)=>{
- if(document.hidden||!document.hasFocus()){settleWindows=4;slowWindows=fastWindows=0;return;}
- const sample={fps,p95,width,height,tier:renderTier,cpuMs,drawCalls};
+ if(document.hidden||!document.hasFocus())return;
+ const sample={fps,p95,width,height,cpuMs,drawCalls};
  canvas.dataset.renderStats=JSON.stringify(sample);
  if(new URLSearchParams(location.search).has('render_stats')){
   const history=JSON.parse(canvas.dataset.renderHistory||'[]');history.push(sample);canvas.dataset.renderHistory=JSON.stringify(history.slice(-60));
@@ -42,10 +41,7 @@ window.brushlineFrameSample=(fps,p95,width,height,cpuMs=0,drawCalls=0)=>{
   if(!output){output=document.createElement('output');output.id='render-stats';output.style.cssText='position:fixed;bottom:8px;left:8px;z-index:10;background:#20252be6;color:#eee2c5;padding:6px 10px;font:12px monospace;pointer-events:none';document.body.append(output);}
   output.textContent=`${width}×${height} · ${fps.toFixed(1)} fps · p95 ${p95.toFixed(1)} ms`;
  }
- if(settleWindows>0){settleWindows--;return;}
- slowWindows=fps<45?slowWindows+1:0;fastWindows=fps>58?fastWindows+1:0;
- if(slowWindows>=3&&renderTier<2){renderTier++;resize();settleWindows=4;slowWindows=fastWindows=0;}
- else if(fastWindows>=10&&renderTier>0){renderTier--;resize();settleWindows=8;slowWindows=fastWindows=0;}
+
 };
 resize();addEventListener('resize',resize);config.canvas=canvas;config.canvasResizePolicy=0;
 function stopWatch(){clearInterval(watchdog);}

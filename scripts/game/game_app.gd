@@ -64,9 +64,6 @@ func _ready() -> void:
 	var migration := OK
 	if not test_mode and not OS.has_feature("web") and profile.path=="user://player/profile.json": migration=RallyBrandMigration.migrate()
 	profile.load_file()
-	if OS.has_feature("web"):
-		prefs.set_value("low_detail",true)
-		prefs.set_value("lens_flare",false)
 	garage_store.path=profile.path.get_base_dir()+"/garage.json"
 	garage_store.load_file()
 	if migration!=OK:

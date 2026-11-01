@@ -14,7 +14,7 @@ const node=id=>nodes.get(id)||nodes.set(id,{dataset:{},className:'',textContent:
 const context={document:{querySelector:node,addEventListener(){},hidden:false,hasFocus:()=>true},window:{},innerWidth:1280,innerHeight:720,addEventListener(){},setInterval(){},clearInterval(){},requestAnimationFrame:f=>f(),Date,console};
 vm.createContext(context);
 vm.runInContext(rendered.match(/<script>([\s\S]*?)<\/script>/)[1],context);
-// Physical pixel sizing and sustained-load hysteresis, including inactive tabs.
+// Physical pixel sizing remains stable even under sustained CPU-bound load.
 context.innerWidth=960;context.innerHeight=720;context.window.devicePixelRatio=1;
 vm.runInContext('resize()',context);assert.equal(node('#canvas').width,960);assert.equal(node('#canvas').height,720);
 context.innerWidth=1400;context.innerHeight=600;
@@ -27,12 +27,13 @@ vm.runInContext('resize()',context);assert.equal(node('#canvas').width,1920);
 context.innerWidth=3840;context.innerHeight=2160;
 vm.runInContext('resize()',context);assert.equal(node('#canvas').width,1920);
 context.URLSearchParams=URLSearchParams;context.location={search:''};
-for(let i=0;i<6;i++)context.window.brushlineFrameSample(30,40,1920,1080);
-assert.equal(node('#canvas').width,1920); // Warm-up plus two slow windows is insufficient.
-context.window.brushlineFrameSample(30,40,1920,1080);
-assert.equal(node('#canvas').width,1600);assert.equal(node('#canvas').height,900);
-for(let i=0;i<14;i++)context.window.brushlineFrameSample(60,17,1600,900);
-assert.equal(node('#canvas').width,1920);
+for(let i=0;i<30;i++)context.window.brushlineFrameSample(30,40,1920,1080);
+assert.equal(node('#canvas').width,1920);assert.equal(node('#canvas').height,1080);
+context.innerWidth=960;context.innerHeight=720;context.window.devicePixelRatio=1;
+vm.runInContext('resize()',context);
+for(let i=0;i<30;i++)context.window.brushlineFrameSample(30,40,960,720);
+assert.equal(node('#canvas').width,960);assert.equal(node('#canvas').height,720);
+context.innerWidth=1920;context.innerHeight=1080;vm.runInContext('resize()',context);
 context.document.hidden=true;
 for(let i=0;i<20;i++)context.window.brushlineFrameSample(1,1000,1920,1080);
 assert.equal(node('#canvas').width,1920);context.document.hidden=false;
