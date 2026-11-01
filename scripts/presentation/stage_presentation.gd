@@ -59,8 +59,13 @@ func build(owner_scene: Node3D) -> void:
 	environment = Environment.new()
 	environment.background_mode = Environment.BG_SKY
 	var sky := Sky.new()
+	if RenderingServer.get_current_rendering_method()=="gl_compatibility":
+		# Moving background clouds do not need a large reflection cubemap.
+		# Spread filtering work across frames instead of stalling twice per second.
+		sky.radiance_size=Sky.RADIANCE_SIZE_64
+		sky.process_mode=Sky.PROCESS_MODE_INCREMENTAL
 	var material := ShaderMaterial.new()
-	material.shader = preload("res://assets/shaders/web_sky.gdshader") if OS.has_feature("web") else preload("res://assets/shaders/sample_sky.gdshader")
+	material.shader = preload("res://assets/shaders/web_sky.gdshader") if RenderingServer.get_current_rendering_method()=="gl_compatibility" else preload("res://assets/shaders/sample_sky.gdshader")
 	material.set_shader_parameter("painted_banks",true)
 	material.set_shader_parameter("cloud_atlas",preload("res://assets/sky/comic/cloud-banks.png"))
 	material.set_shader_parameter("cloud_drift",0.0)
@@ -86,8 +91,8 @@ func build(owner_scene: Node3D) -> void:
 	scene.camera.fov = 62
 	previous_msaa = scene.get_viewport().msaa_3d
 	previous_screen_aa = scene.get_viewport().screen_space_aa
-	scene.get_viewport().msaa_3d = (Viewport.MSAA_2X if OS.has_feature("web") else Viewport.MSAA_DISABLED)
-	scene.get_viewport().screen_space_aa = (Viewport.SCREEN_SPACE_AA_DISABLED if OS.has_feature("web") else Viewport.SCREEN_SPACE_AA_FXAA)
+	scene.get_viewport().msaa_3d = (Viewport.MSAA_2X if RenderingServer.get_current_rendering_method()=="gl_compatibility" else Viewport.MSAA_DISABLED)
+	scene.get_viewport().screen_space_aa = (Viewport.SCREEN_SPACE_AA_DISABLED if RenderingServer.get_current_rendering_method()=="gl_compatibility" else Viewport.SCREEN_SPACE_AA_FXAA)
 
 
 func update(dt: float,drive_camera: bool = true) -> void:
@@ -206,6 +211,11 @@ func _apply_biome(sky: ShaderMaterial) -> void:
 				painted.set_shader_parameter("shade_color",Color("629ba4"))
 				painted.set_shader_parameter("lit_color",Color("ede1bf"))
 			backdrop.material_override = painted
+	# Compatibility tone-maps the shadowed sun in a separate additive pass.
+	# Match the native reference without crushing ambient/shadow colors or
+	# changing the intentionally dark highland dusk (which has no sun shadows).
+	if RenderingServer.get_current_rendering_method()=="gl_compatibility":
+		sun.light_energy*=float({"autumn":.70,"coast":.40,"desert":.50}.get(biome,1.0))
 	sun.basis = Basis.looking_at(-atmosphere.sun_direction,Vector3.UP)
 	sky.set_shader_parameter("cloud_atlas_warmth",{"autumn":1.0,"desert":.55}.get(biome,.10))
 	sky.set_shader_parameter("cloud_light",cloud_light)

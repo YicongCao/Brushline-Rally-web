@@ -1,4 +1,5 @@
 shader_type spatial;
+#include "res://assets/shaders/render_color.gdshaderinc"
 uniform float cinematic_time = -1.0;
 float scene_time() { return cinematic_time >= 0.0 ? cinematic_time : TIME; }
 render_mode cull_disabled, diffuse_lambert_wrap, specular_disabled;
@@ -22,6 +23,9 @@ void fragment() {
 	ROUGHNESS = 1.0;
 	// A small leaf fill retains autumn color inside layered crowns.
 	EMISSION = COLOR.rgb * (grass_blades ? 0.04 : 0.08);
+
+ ALBEDO=rally_output_color(ALBEDO);
+ EMISSION=rally_output_color(EMISSION);
 }
 
 void light() {

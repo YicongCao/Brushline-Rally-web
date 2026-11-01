@@ -1,4 +1,5 @@
 shader_type spatial;
+#include "res://assets/shaders/render_color.gdshaderinc"
 render_mode cull_disabled, depth_draw_never;
 void fragment() {
 	float edge = smoothstep(0.0,0.14,UV.x)*(1.0-smoothstep(0.86,1.0,UV.x));
@@ -6,4 +7,6 @@ void fragment() {
 	ALBEDO = COLOR.rgb;
 	ALPHA = COLOR.a*edge*tread;
 	ROUGHNESS = 1.0;
+
+ ALBEDO=rally_output_color(ALBEDO);
 }

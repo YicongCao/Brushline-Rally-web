@@ -1,3 +1,4 @@
+#include "res://assets/shaders/render_color.gdshaderinc"
 // Painted banks live in sky direction, not on the camera or a full-screen overlay.
 // Ten texture samples replace 126 procedural lobe evaluations per half-res pixel.
 uniform sampler2D cloud_atlas : source_color, filter_linear_mipmap, repeat_disable;
@@ -24,11 +25,11 @@ vec4 painted_clouds(vec3 ray,vec3 sun) {
    if(row==1)strip=vec2(.312,.218);
    if(row==2)strip=vec2(.535,.255);
    if(row==3)strip=vec2(.79,.21);
-   vec4 paint=texture(cloud_atlas,vec2(uv.x,strip.x+uv.y*strip.y));
+   vec4 paint=rally_source_linear(texture(cloud_atlas,vec2(uv.x,strip.x+uv.y*strip.y)));
    float edge=smoothstep(0.0,.018,uv.x)*smoothstep(0.0,.018,1.0-uv.x)*smoothstep(0.0,.025,uv.y)*smoothstep(0.0,.025,1.0-uv.y);
    float alpha=smoothstep(.04,.86,paint.a)*edge;
    float tone=dot(paint.rgb,vec3(.2126,.7152,.0722));
-   vec3 neutral=mix(cloud_shadow.rgb,cloud_light.rgb,smoothstep(.13,.80,tone));
+   vec3 neutral=mix(rally_source_linear(cloud_shadow.rgb),rally_source_linear(cloud_light.rgb),smoothstep(.13,.80,tone));
    vec3 color=mix(neutral,paint.rgb,cloud_atlas_warmth);
    // Premultiplied accumulation avoids dark halos at transparent atlas edges.
    cloud.rgb=color*alpha+cloud.rgb*(1.0-alpha);

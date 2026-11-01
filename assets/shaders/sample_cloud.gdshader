@@ -1,4 +1,5 @@
 shader_type spatial;
+#include "res://assets/shaders/render_color.gdshaderinc"
 render_mode unshaded, fog_disabled, cull_disabled;
 
 #include "res://assets/shaders/autumn_sky_palette.gdshaderinc"
@@ -18,7 +19,9 @@ void fragment() {
 	vec3 direction = normalize(world_position - CAMERA_POSITION_WORLD);
 	float n=dot(normalize(world_normal),sun_direction);
 	float light=.16+.40*smoothstep(-.28,-.12,n)+.44*smoothstep(.40,.59,n);
-	vec3 shade = mix(cloud_shadow.rgb, cloud_light.rgb, light);
+	vec3 shade = mix(rally_source_linear(cloud_shadow.rgb), rally_source_linear(cloud_light.rgb), light);
 	float distance_haze = smoothstep(800.0, 3600.0, distance(world_position, CAMERA_POSITION_WORLD));
 	ALBEDO = mix(shade, autumn_sky(direction, sun_direction), 0.12 + distance_haze * 0.40 + distant_layer * 0.10);
+
+ ALBEDO=rally_output_color(ALBEDO);
 }

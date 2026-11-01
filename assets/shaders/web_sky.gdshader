@@ -1,4 +1,5 @@
 shader_type sky;
+#include "res://assets/shaders/render_color.gdshaderinc"
 
 #include "res://assets/shaders/autumn_sky_palette.gdshaderinc"
 #include "res://assets/shaders/anime_clouds.gdshaderinc"
@@ -16,4 +17,5 @@ void sky() {
         COLOR = mix(COLOR, cloud.rgb, cloud.a);
     }
     COLOR = mix(vec3(0.24, 0.18, 0.29), COLOR, smoothstep(-0.12, 0.01, EYEDIR.y));
+    COLOR = rally_output_color(COLOR);
 }

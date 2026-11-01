@@ -1,4 +1,5 @@
 shader_type sky;
+#include "res://assets/shaders/render_color.gdshaderinc"
 render_mode use_half_res_pass;
 
 #include "res://assets/shaders/autumn_sky_palette.gdshaderinc"

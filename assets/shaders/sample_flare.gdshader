@@ -1,4 +1,5 @@
 shader_type spatial;
+#include "res://assets/shaders/render_color.gdshaderinc"
 render_mode unshaded, blend_add, depth_draw_never, depth_test_disabled, fog_disabled, cull_disabled;
 
 uniform sampler2D scene_depth : hint_depth_texture, repeat_disable, filter_nearest;
@@ -51,4 +52,7 @@ void fragment() {
 	ALBEDO = effect;
 	EMISSION = vec3(0.0);
 	ALPHA = 1.0;
+
+ ALBEDO=rally_output_color(ALBEDO);
+ EMISSION=rally_output_color(EMISSION);
 }

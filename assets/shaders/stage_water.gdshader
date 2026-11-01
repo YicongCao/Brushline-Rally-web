@@ -1,4 +1,5 @@
 shader_type spatial;
+#include "res://assets/shaders/render_color.gdshaderinc"
 uniform float cinematic_time = -1.0;
 float scene_time() { return cinematic_time >= 0.0 ? cinematic_time : TIME; }
 render_mode cull_disabled, depth_draw_opaque;
@@ -17,4 +18,6 @@ void fragment() {
 	SPECULAR = .4;
 	NORMAL_MAP = vec3(.5+sin(world.x*3.0+scene_time()*2.0)*.035,.5+cos(world.z*5.0-scene_time()*1.8)*.025,1.0);
 	ALPHA = river ? 1.0-smoothstep(108.0,120.0,abs(UV.x)) : edge*along*.82;
+
+ ALBEDO=rally_output_color(ALBEDO);
 }

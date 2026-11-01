@@ -17,5 +17,5 @@ static func scale_for(control: Control) -> float:
 static func pixel_size(control: Control) -> Vector2i:
 	var factor := scale_for(control)
 	if OS.has_feature("web"):
-		factor = minf(factor,minf(1280.0/maxf(control.size.x,1.0),720.0/maxf(control.size.y,1.0)))
+		factor = minf(factor,minf(1920.0/maxf(control.size.x,1.0),1080.0/maxf(control.size.y,1.0)))
 	return Vector2i(maxi(1,roundi(control.size.x*factor)),maxi(1,roundi(control.size.y*factor)))

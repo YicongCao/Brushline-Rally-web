@@ -1,4 +1,5 @@
 shader_type spatial;
+#include "res://assets/shaders/render_color.gdshaderinc"
 render_mode diffuse_burley;
 #include "res://assets/shaders/painted_rock.gdshaderinc"
 
@@ -43,7 +44,7 @@ vec3 wear_sample(vec2 uv,vec2 quadrant) {
  // Safe atlas margins avoid mip bleeding between different surfaces.
  vec2 cell=floor(uv), f=fract(uv);
  f=mix(f,vec2(1.0)-f,step(.5,hash(cell)));
- return texture(wear_atlas,(quadrant+.035+f*.93)*.5).rgb;
+ return rally_source_linear(texture(wear_atlas,(quadrant+.035+f*.93)*.5).rgb);
 }
 
 void vertex() {
@@ -65,7 +66,7 @@ void fragment() {
 	float large = noise(world.xz * 0.07);
 	float grit = mix(noise(world.xz * 16.0),0.5,clamp(length(fwidth(world.xz))*12.0,0.0,1.0));
 	float fleck = smoothstep(0.75, 0.93, noise(world.xz * 7.0));
-	vec3 grass = mix(grass_dark,grass_light,large);
+	vec3 grass = mix(rally_source_linear(grass_dark),rally_source_linear(grass_light),large);
 	vec3 earth = mix(vec3(0.26, 0.22, 0.14), vec3(0.39, 0.33, 0.21), noise(world.xz * 0.31));
 	vec3 color = mix(grass, earth, smoothstep(0.44, 0.8, noise(world.xz * 0.11)) * 0.25);
 	if (!road_mesh) {
@@ -167,4 +168,7 @@ void fragment() {
   ROUGHNESS=.98;
  }
 
+
+ ALBEDO=rally_output_color(ALBEDO);
+ EMISSION=rally_output_color(EMISSION);
 }

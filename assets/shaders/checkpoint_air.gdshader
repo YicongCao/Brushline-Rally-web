@@ -1,4 +1,5 @@
 shader_type spatial;
+#include "res://assets/shaders/render_color.gdshaderinc"
 render_mode cull_disabled;
 
 uniform float air_time = 0.0;
@@ -45,4 +46,6 @@ void fragment() {
 	ALBEDO = COLOR.rgb * mix(.76,1.0,gate_status);
 	ROUGHNESS = UV2.x>.5 ? .79 : .66;
 	SPECULAR = .18;
+
+ ALBEDO=rally_output_color(ALBEDO);
 }

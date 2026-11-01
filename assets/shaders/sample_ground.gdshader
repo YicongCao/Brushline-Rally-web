@@ -1,4 +1,5 @@
 shader_type spatial;
+#include "res://assets/shaders/render_color.gdshaderinc"
 render_mode diffuse_burley;
 
 varying vec3 world;
@@ -61,4 +62,6 @@ void fragment() {
 	vec2 bumps = vec2(dFdx(road_bump),dFdy(road_bump));
 	NORMAL_MAP = vec3(vec2(0.5)+clamp(-bumps*0.55,vec2(-0.20),vec2(0.20)) + vec2(grit-0.5)*0.08,1.0);
 	NORMAL_MAP_DEPTH = 0.4;
+
+ ALBEDO=rally_output_color(ALBEDO);
 }

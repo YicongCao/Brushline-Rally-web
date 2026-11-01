@@ -1,4 +1,5 @@
 shader_type spatial;
+#include "res://assets/shaders/render_color.gdshaderinc"
 uniform float cinematic_time = -1.0;
 float scene_time() { return cinematic_time >= 0.0 ? cinematic_time : TIME; }
 render_mode cull_disabled;
@@ -31,8 +32,11 @@ void fragment(){
  float distant_scale=smoothstep(.03,.18,fine_footprint);
  float sparkle=(twinkles(fine+drift,0.0)+twinkles(world.xz*.075+drift,1.7)*.85*distant_scale)*(.5+sun_band*.5);
  float fresnel=pow(1.0-max(to_camera.y,0.0),3.0);
- ALBEDO=mix(deep,shallow,0.44+smoothstep(-.35,.45,wave)*.14)+vec3(.08,.11,.12)*fresnel;
+ ALBEDO=mix(rally_source_linear(deep),rally_source_linear(shallow),0.44+smoothstep(-.35,.45,wave)*.14)+vec3(.08,.11,.12)*fresnel;
  EMISSION=vec3(1.0,.93,.72)*sparkle*sparkle_strength;
  ROUGHNESS=.22+wave*.035; METALLIC=.10; SPECULAR=.65;
  NORMAL_MAP=vec3(.5+cos(world.x*.11+scene_time()*.65)*.055,.5+cos(world.z*.16-scene_time()*.35)*.055,1.0);
+
+ ALBEDO=rally_output_color(ALBEDO);
+ EMISSION=rally_output_color(EMISSION);
 }

@@ -1,4 +1,5 @@
 shader_type spatial;
+#include "res://assets/shaders/render_color.gdshaderinc"
 render_mode unshaded, blend_add, depth_draw_never, cull_disabled, fog_disabled;
 
 uniform vec4 light_color : source_color = vec4(.38,.91,1.0,1.0);
@@ -42,6 +43,8 @@ void fragment() {
 		opacity = (core+halo+fleck*.45)*taper*stream;
 		white_core = core*.65;
 	}
-	ALBEDO = mix(light_color.rgb,vec3(1.0),white_core)*1.7;
+	ALBEDO = mix(rally_source_linear(light_color.rgb),vec3(1.0),white_core)*1.7;
 	ALPHA = clamp(opacity*strength,0.0,1.0);
+
+ ALBEDO=rally_output_color(ALBEDO);
 }

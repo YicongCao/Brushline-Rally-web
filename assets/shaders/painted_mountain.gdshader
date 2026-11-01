@@ -1,4 +1,5 @@
 shader_type spatial;
+#include "res://assets/shaders/render_color.gdshaderinc"
 render_mode cull_disabled;
 #include "res://assets/shaders/painted_rock.gdshaderinc"
 varying vec3 world;
@@ -8,4 +9,6 @@ void fragment() {
  ALBEDO=painted_rock(world,n,COLOR.rgb);
  ROUGHNESS=.96;
  SPECULAR=.08;
+
+ ALBEDO=rally_output_color(ALBEDO);
 }

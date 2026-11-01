@@ -1,4 +1,5 @@
 shader_type spatial;
+#include "res://assets/shaders/render_color.gdshaderinc"
 render_mode cull_back, specular_disabled;
 // Screenprint sandstone: world-anchored strata in a few flat inks, stepped
 // light bands like the vehicles, warm plum shadows and sand on ledges.
@@ -34,24 +35,26 @@ void fragment() {
  float y=world.y+warp;
  float index=floor(y/5.5);
  float pick=rock_hash(index);
- vec3 band=pick<.34 ? deep_red : (pick<.70 ? terracotta : (pick<.90 ? orange_band : pale_band));
+ vec3 band=pick<.34 ? rally_source_linear(deep_red) : (pick<.70 ? rally_source_linear(terracotta) : (pick<.90 ? rally_source_linear(orange_band) : rally_source_linear(pale_band)));
  // A thin pale seam between strata keeps the layered read at distance.
  float seam=1.0-smoothstep(.0,.07,fract(y/5.5));
- band=mix(band,pale_band,seam*.55);
+ band=mix(band,rally_source_linear(pale_band),seam*.55);
  // Desert varnish: vertical dark streaks only on near-vertical faces.
  float vertical=1.0-smoothstep(.35,.7,abs(n.y));
  float streak=smoothstep(.55,.85,rock_noise(vec2((world.x+world.z)*.45,world.y*.035)));
  band*=1.0-streak*vertical*.22;
- band=mix(band,ledge_sand,smoothstep(.62,.86,n.y));
+ band=mix(band,rally_source_linear(ledge_sand),smoothstep(.62,.86,n.y));
  // Cheap pigment grain instead of triplanar texture fetches on screen-filling walls.
  float grain=rock_noise(world.xz*.9+world.y*.7)*.6+rock_noise(world.zy*2.3)*.4;
  ALBEDO=band*(.92+.16*grain);
  ROUGHNESS=.95;
+
+ ALBEDO=rally_output_color(ALBEDO);
 }
 
 void light() {
  float d=dot(NORMAL,LIGHT);
  float bands=shade_steps.x+(shade_steps.y-shade_steps.x)*smoothstep(.0,.08,d)+(shade_steps.z-shade_steps.y)*smoothstep(.45,.55,d);
- vec3 shade=mix(shadow_ink,vec3(1.0),bands*mix(.55,1.0,ATTENUATION));
+ vec3 shade=mix(rally_source_linear(shadow_ink),vec3(1.0),bands*mix(.55,1.0,ATTENUATION));
  DIFFUSE_LIGHT+=ALBEDO*shade*LIGHT_COLOR/PI;
 }
