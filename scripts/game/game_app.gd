@@ -540,6 +540,7 @@ func start_race() -> void:
 	_save()
 	race = STAGE_SCENE.instantiate()
 	race.managed_flow = true
+	race.set_meta("web_demo",web_demo)
 	race.challenge = RallyContentCatalog.challenge(chosen_stage,chosen_vehicle,chosen_power_tier)
 	if modified_mode:
 		race.challenge.vehicle=RallyGarageCatalog.resolve(RallyContentCatalog.vehicle(garage_vehicle),garage_draft)

@@ -55,7 +55,7 @@ func start() -> void:
 	# Official challenges retain fixed mechanical setup. Developer tools remain in the lab.
 	for key: String in ["brake_bias","spring_scale"]:
 		pause_menu.widgets[key].editable = session.practice and not demonstration and not modified_mode
-	pause_menu.actions.add_back("返回车库" if modified_mode else "返回赛道选择",func(): return_requested.emit(),true)
+	pause_menu.actions.add_back("结束试玩" if get_meta("web_demo",false) else ("返回车库" if modified_mode else "返回赛道选择"),func(): return_requested.emit(),true)
 	pause_menu.message.text = "练习不计入奖牌与个人纪录" if session.practice else "正式挑战 · 机械调校固定 · 自动驾驶跑段不计成绩"
 	if modified_mode: pause_menu.message.text="改装试跑 · 配件与调校来自当前车库草稿"
 	_build_spatial_ambience()
