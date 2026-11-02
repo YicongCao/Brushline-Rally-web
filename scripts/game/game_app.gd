@@ -53,6 +53,8 @@ var garage_panel: VBoxContainer
 var modified_mode: bool=false
 var garage_test: bool=false
 var vehicle_page: int=0
+var web_demo: bool = OS.has_feature("web") or "--web-demo" in OS.get_cmdline_user_args()
+const CLIENT_RELEASE := "https://github.com/YicongCao/Brushline-Rally/releases/tag/v0.5.0"
 
 
 
@@ -61,6 +63,7 @@ func _ready() -> void:
 	process_mode = Node.PROCESS_MODE_ALWAYS
 	test_mode = "--test-defaults" in OS.get_cmdline_user_args()
 	if test_mode and profile.path=="user://player/profile.json": profile.path = "user://test-session/profile.json"
+	if web_demo and profile.path=="user://player/profile.json": profile.path = "user://web-demo/profile.json"
 	var migration := OK
 	if not test_mode and not OS.has_feature("web") and profile.path=="user://player/profile.json": migration=RallyBrandMigration.migrate()
 	profile.load_file()
@@ -82,7 +85,14 @@ func _ready() -> void:
 	add_child(transitions)
 	layer.layer = 40
 	add_child(layer)
-	if not test_mode and str(profile.data.get("plate","")).is_empty(): show_plate_setup(true)
+	if web_demo:
+		chosen_stage="sunset_ridge"
+		chosen_vehicle="F160"
+		chosen_power_tier=0
+		practice=true
+		profile.data["plate"]="RALLY"
+		start_race.call_deferred()
+	elif not test_mode and str(profile.data.get("plate","")).is_empty(): show_plate_setup(true)
 	else: show_home()
 	if "--package-smoke" in OS.get_cmdline_user_args(): _package_check.call_deferred()
 
@@ -606,9 +616,21 @@ func _clear_race(destination: String) -> void:
 	get_tree().paused = false
 	tutorial = false
 	audio.set_scene()
-	if destination=="garage": show_garage()
+	if web_demo: show_demo_end()
+	elif destination=="garage": show_garage()
 	elif destination=="vehicles": show_vehicles()
 	else: show_stages()
+
+
+func download_client() -> void:
+	OS.shell_open(CLIENT_RELEASE)
+
+
+func show_demo_end() -> void:
+	_page("感谢驾驶", "Web 试玩仅含夕照松岭", "demo_end")
+	_label(column,"下载 Win / Mac 完整客户端，体验更多赛道与车辆。",22)
+	_label(column,"客户端体验更佳，不受浏览器资源加载与 WebGL 性能限制。",16)
+	_actions("下载完整客户端",download_client,"再跑一次",start_race).primary_button.grab_focus()
 
 
 func retry() -> void:
@@ -685,6 +707,10 @@ func show_results(result: Dictionary) -> void:
 	view.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	body.add_child(view)
 	if replaying: _replay_controls(column)
+	if web_demo:
+		_label(column,"Web 试玩仅含夕照松岭 · 完整赛道与车辆请下载客户端",18)
+		_actions("下载 Win / Mac 客户端",download_client,"再跑一次",retry).primary_button.grab_focus()
+		return
 	var actions := _actions("返回赛道选择",leave_race,"再跑一次",retry)
 	var change := _button(actions,"更换车辆",leave_race.bind("vehicles"))
 	change.custom_minimum_size = Vector2(180,40)

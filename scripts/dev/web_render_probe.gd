@@ -8,7 +8,8 @@ func run() -> void:
  var dest:="res://logs/web-render-reference/"
  DirAccess.make_dir_recursive_absolute(dest)
  AudioServer.set_bus_mute(0,true)
- for stage: String in RallyContentCatalog.STAGES:
+ var stages := ["sunset_ridge"] if "--sunset-only" in OS.get_cmdline_user_args() else Array(RallyContentCatalog.STAGES)
+ for stage: String in stages:
   var world:=RallyShowcaseWorld.new()
   await world.prepare(root,stage,"F160",func(_v: float,_t: String): pass)
   world.viewport.size=Vector2i(1920,1080)

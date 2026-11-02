@@ -41,6 +41,12 @@ vm.runInContext('config.onProgress(25,40)',context); // First file total is not 
 assert.equal(node('#progress').value,.25);assert.equal(node('#amount').textContent,'25%');
 vm.runInContext('config.onProgress(100,100)',context);
 assert.equal(node('#panel').dataset.phase,'engine');assert.equal(node('#progress').value,undefined);
+let starts=0;
+context.Engine=class {static isWebGLAvailable(){return true;} startGame(){starts++;return Promise.resolve();}};
+vm.runInContext('launcherReady()',context);
+assert.equal(starts,1,'Loading the launcher must start the engine without a click');
+await new Promise(resolve=>setImmediate(resolve));
+assert.equal(node('#panel').hidden,true);
 vm.runInContext("runtimeFailure('fixture')",context);
 assert.equal(node('#retry').hidden,false);assert.equal(node('#panel').dataset.phase,'error');
 vm.runInContext('config.onProgress(100,100)',context);assert.equal(node('#panel').dataset.phase,'error');

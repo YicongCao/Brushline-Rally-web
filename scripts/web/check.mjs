@@ -32,6 +32,7 @@ function equal(actual,expected){assert.deepEqual(actual,expected);checks++;}
 try {
   equal((await request('/healthz')).status,200); equal((await request('/readyz')).status,503); equal((await request('/play/')).status,503);
   await fixture('one'); await fixture('two',true); equal(activate('one').status,0);
+  equal((await request('/')).headers.location,'/play/one/'); equal((await request('/')).headers['cache-control'],'no-store');
   equal((await request('/readyz')).status,200); equal(JSON.parse((await request('/readyz')).body).game_verified,false);
   equal((await request('/play/')).headers.location,'/play/one/'); equal((await request('/play/one')).headers.location,'/play/one/');
   equal((await request('/play/one/')).headers['cache-control'],'no-cache');

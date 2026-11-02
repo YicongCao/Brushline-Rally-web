@@ -48,7 +48,8 @@ void light(){
  float d=dot(NORMAL,LIGHT);
  float wrap=clamp((d+.35)/1.35,0.0,1.0);
  vec3 shade=mix(rally_source_linear(shadow_ink),vec3(1.0),smoothstep(0.0,1.0,wrap)*mix(.6,1.0,ATTENUATION));
- DIFFUSE_LIGHT+=ALBEDO*shade*LIGHT_COLOR/PI;
+ // Godot multiplies accumulated diffuse by ALBEDO after light().
+ DIFFUSE_LIGHT+=shade*LIGHT_COLOR/PI;
  vec3 h=normalize(LIGHT+VIEW);
  float spec=pow(max(dot(NORMAL,h),0.0),mix(24.0,220.0,1.0-roughness_amount));
  SPECULAR_LIGHT+=LIGHT_COLOR*spec*ATTENUATION*(glass>.5 ? 1.2 : .25+gloss*.75);

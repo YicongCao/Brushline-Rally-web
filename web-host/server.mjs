@@ -30,6 +30,11 @@ export function createApp(options = {}) {
       res.json({ status: 'ready', build_id: manifest.build_id, threads: manifest.threads, game_verified: manifest.validation_status === 'browser-smoke-passed' });
     } catch { res.status(503).json({ status: 'waiting-for-build' }); }
   });
+  app.get('/', async (_req, res) => {
+    res.set('Cache-Control', 'no-store');
+    try { const {manifest} = await currentRelease(releases, pointer); return res.redirect(302, `/play/${manifest.build_id}/`); }
+    catch { return res.status(503).send('试玩资源正在准备，请稍后重试。'); }
+  });
   app.use('/play', async (req, res, next) => {
     try {
       if (req.path === '/') {

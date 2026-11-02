@@ -23,7 +23,7 @@ static func build(definition: Resource) -> Node3D:
   part.name="LOD%d"%level
   result.add_child(part)
   if definition.vehicle_id in HIFI_VEHICLES: _style_hifi(part,level,appearance.lod_distances)
-  else: _style(part,level,appearance.lod_distances)
+  else: _style(part,level,appearance.lod_distances,true)
  return result
 
 static func _style_hifi(node: Node,level: int,distances: Vector3) -> void:
@@ -53,7 +53,7 @@ static func _style_hifi(node: Node,level: int,distances: Vector3) -> void:
    item.set_surface_override_material(index,material_cache[key])
  for child: Node in node.get_children(): _style_hifi(child,level,distances)
 
-static func _style(node: Node,level: int,distances: Vector3) -> void:
+static func _style(node: Node,level: int,distances: Vector3,vehicle_lighting: bool=false) -> void:
  if node is MeshInstance3D:
   var item := node as MeshInstance3D
   item.visibility_range_begin=0 if level==0 else distances[level-1]
@@ -72,17 +72,19 @@ static func _style(node: Node,level: int,distances: Vector3) -> void:
     if original==null: continue
     var color := original.albedo_color
     var glass := "glass" in original.resource_name.to_lower() or "glass" in str(item.name).to_lower() or "screen" in str(item.name).to_lower()
-    var key := color.to_html()+str(glass)
+    var key := color.to_html()+str(glass)+str(vehicle_lighting)
     if not material_cache.has(key):
      var shader := ShaderMaterial.new()
      shader.shader=preload("res://assets/shaders/screenprint_vehicle.gdshader")
      shader.set_shader_parameter("paint",color)
+     shader.set_shader_parameter("vehicle_lighting",vehicle_lighting)
+     shader.set_shader_parameter("sky_fill",Vector3(.48,.55,.68) if vehicle_lighting else Vector3.ZERO)
      shader.set_shader_parameter("shadow_ink",RallyScreenprintStyle.current().plum)
      shader.set_shader_parameter("shade_steps",RallyScreenprintStyle.current().shadow_steps)
      shader.set_shader_parameter("glass",1.0 if glass else 0.0)
      material_cache[key]=shader
     item.set_surface_override_material(index,material_cache[key])
- for child: Node in node.get_children(): _style(child,level,distances)
+ for child: Node in node.get_children(): _style(child,level,distances,vehicle_lighting)
 
 static func mount(body: Node3D,name_id: String,fallback: Vector3) -> Vector3:
  var target := body.find_child(name_id,true,false) as Node3D
