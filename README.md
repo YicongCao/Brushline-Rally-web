@@ -1,5 +1,7 @@
 # Brushline Rally Web
 
+**[浏览器试玩](https://yicongcao.github.io/Brushline-Rally-web/)** · 打开即玩，驾驶 F160 挑战夕照松岭。
+
 独立 Web 版仓库，源自 [Brushline Rally](https://github.com/YicongCao/Brushline-Rally) 的 `5d5c2c6`。保留完整历史，桌面仓库保持独立；下方历史版本链接仍指向桌面发行。
 
 ## 浏览器版开发与部署
