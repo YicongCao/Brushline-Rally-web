@@ -1,0 +1,64 @@
+name: Deploy Web demo to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+      - name: Install the pinned Godot release and Web templates
+        run: |
+          set -euo pipefail
+          version="$(cat .godot-version)"
+          tag="${version}-stable"
+          archive="Godot_v${tag}_linux.x86_64.zip"
+          release="https://github.com/godotengine/godot-builds/releases/download/$tag"
+          curl --fail --silent --show-error --location --retry 3 "$release/$archive" -o "$RUNNER_TEMP/$archive"
+          curl --fail --silent --show-error --location --retry 3 "$release/SHA512-SUMS.txt" -o "$RUNNER_TEMP/SHA512-SUMS.txt"
+          (
+            cd "$RUNNER_TEMP"
+            awk -v name="$archive" '$2 == name || $2 == "*" name { print }' SHA512-SUMS.txt | sha512sum --check -
+            unzip -q "$archive"
+          )
+          echo "GODOT_BIN=$RUNNER_TEMP/Godot_v${tag}_linux.x86_64" >> "$GITHUB_ENV"
+          python3 scripts/web/install_templates.py
+      - name: Export and stage the static site
+        env:
+          BUILD_ID: pages-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          npm run web:build
+          node scripts/web/stage-pages.mjs "$BUILD_ID"
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: builds/pages
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - name: Publish the static site
+        id: deploy
+        uses: actions/deploy-pages@v4

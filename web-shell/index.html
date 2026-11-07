@@ -55,7 +55,7 @@ config.onProgress=(current,total)=>{
  }else{progress.removeAttribute('value');amount.textContent='—';status.textContent='读取游戏资源';detail.textContent='正在接收资源，暂时无法确定总量。';}
 };
 config.onExit=()=>{finished=true;stopWatch();phase('exit');panel.hidden=false;start.hidden=true;progress.value=1;status.textContent='本次驾驶已结束';amount.textContent='—';detail.textContent='可以完整客户端，或重新载入赛道。';retry.hidden=false;};
-addEventListener('error',event=>{if(event.target?.id==='godot-loader'||(event.error&&(!event.filename||event.filename.startsWith(location.origin+'/play/'))))runtimeFailure(event.error||'Launcher failed');},true);
+addEventListener('error',event=>{if(event.target?.id==='godot-loader'||(event.error&&(!event.filename||event.filename.startsWith(new URL('.',location.href).href))))runtimeFailure(event.error||'Launcher failed');},true);
 addEventListener('unhandledrejection',event=>runtimeFailure(event.reason));
 canvas.addEventListener('webglcontextlost',()=>runtimeFailure('WebGL context lost'));
 async function beginDemo(){

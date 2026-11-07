@@ -21,6 +21,12 @@ Node.js 托管首页、Godot 导出资源及健康接口。物理、渲染、音
 
 `builds/` 被 Git 忽略，源码克隆不包含游戏二进制。部署时必须先构建或接收完整构建目录；仅 `npm start` 可以上线首页，但 `/readyz` 会返回 503。
 
+## GitHub Pages
+
+独立 Web 仓库的 `main` 推送会触发 [Pages 发布工作流](../../.github/workflows/pages.yml)。也可以在 Actions 手动运行。工作流用锁定的 Godot 版本重新导出，校验构建清单，再上传静态文件。试玩入口为 [Brushline Rally Web](https://yicongcao.github.io/Brushline-Rally-web/)。
+
+`node scripts/web/stage-pages.mjs <build-id> [新输出目录]` 可单独准备 Pages 产物。游戏文件、加载页素材与字体使用同一目录下的相对地址，适配仓库子路径。Pages 发布目录只使用原始资源文件，Node 托管保留自己的压缩协商和运行接口。线上 `version.json` 标识实际发布的提交。
+
 ## 本地构建
 
 构建机安装 `.godot-version` 指定的 Godot **4.7.2**、Node.js **26.x**、Python 3（安装模板用）。Node 服务也允许 24.x / 25.x；本轮验证使用 26.1.0。生产使用受支持的最新补丁版并另行记录。
